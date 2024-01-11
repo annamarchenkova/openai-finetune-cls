@@ -91,10 +91,24 @@ def main():
   result = openai.FineTune.list()
   job_ids = [i['id'] for i in result["data"]]
   print(f'Found {len(job_ids)} fine-tune jobs: {job_ids}.')
-  return job_id
+  
+  ## Deploy trained model
+  # Or deploy manually from the platform
+    
+  # Retrieve the name of the customized model from the fine-tune job.
+  result = openai.FineTune.retrieve(id=job_id)
+  if result["status"] == 'succeeded':
+      model = result["fine_tuned_model"]
+    
+  # Create the deployment for the customized model, using the standard scale type without specifying a scale
+  # capacity.
+  print(f'Creating a new deployment with model: {model}')
+  result = openai.Deployment.create(model=model, deployment_name='ag100_60_20_curie', scale_settings={"scale_type":"standard"})
+  # Retrieve the deployment job ID from the results.
+  deployment_id = result["id"]
 
 if __name__ == 'main':
-  job_id = main()
+    main()
 
 
 
